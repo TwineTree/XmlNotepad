@@ -53,8 +53,9 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PostBuildEvent>set SIGNTOOL=$(MSBuildThisFileDirectory)..\..\tools\signtool.exe
-"%25SIGNTOOL%25" sign /v /debug /i "COMODO RSA Code Signing CA"  /t http://timestamp.comodoca.com/authenticode /fd sha256 "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>
+      set SIGNTOOL=$(MSBuildThisFileDirectory)..\..\tools\signtool.exe
+      "%25SIGNTOOL%25" sign /v /debug /i " COMODO RSA Certification Authority"  /t http://timestamp.comodoca.com/authenticode "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

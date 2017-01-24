@@ -89,6 +89,7 @@ namespace Microsoft.XmlDiffPatch
                 {
                     case XmlNodeType.Text:
                     case XmlNodeType.Whitespace:
+                    case XmlNodeType.SignificantWhitespace:
                         return this.InnerText;
                     case XmlNodeType.Comment:
                         return Tags.XmlCommentOldStyleBegin + 
