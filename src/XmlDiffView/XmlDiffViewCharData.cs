@@ -124,7 +124,11 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent, bool isSvg)
+        internal override void DrawHtml(
+            XmlWriter writer, 
+            XmlWriter writerRight, 
+            int indent,
+            bool isSvg)
         {
             if (Operation == XmlDiffViewOperation.Change)
             {
@@ -149,19 +153,27 @@ namespace Microsoft.XmlDiffPatch
                 XmlDiffView.HtmlStartCell(writer, indent);
                 if (openString != string.Empty)
                 {
+                    var text = (isSvg)
+                        ? DiffTags.GetSvgDeleteString(this.innerText)
+                        : DiffTags.GetXmlDeleteString(this.innerText);
+
                     XmlDiffView.HtmlWriteString(writer, openString);
                     XmlDiffView.HtmlWriteString(
                         writer, 
                         XmlDiffViewOperation.Change, 
-                        DiffTags.GetSvgDeleteString(this.InnerText));
+                        text);
                     XmlDiffView.HtmlWriteString(writer, closeString);
                 }
                 else
                 {
+                    var text = (isSvg)
+                        ? DiffTags.GetSvgDeleteString(this.innerText)
+                        : DiffTags.GetXmlDeleteString(this.innerText);
+
                     XmlDiffView.HtmlWriteString(
                         writer, 
                         XmlDiffViewOperation.Change,
-                        DiffTags.GetSvgDeleteString(this.InnerText));
+                        text);
                 }
                 XmlDiffView.HtmlEndCell(writer);                
                 XmlDiffView.HtmlStartCell(writer, indent);
@@ -172,19 +184,27 @@ namespace Microsoft.XmlDiffPatch
                 this.DrawLineNumber(writerRight);
                 if (openString != string.Empty)
                 {
+                    var text = (isSvg)
+                        ? DiffTags.GetSvgInsertString(ChangeInformation.Subset)
+                        : DiffTags.GetXmlInsertString(ChangeInformation.Subset);
+
                     XmlDiffView.HtmlWriteString(writerRight, openString);
                     XmlDiffView.HtmlWriteString(
                         writerRight, 
                         XmlDiffViewOperation.Change, 
-                        DiffTags.GetSvgInsertString(ChangeInformation.Subset));
+                        text);
                     XmlDiffView.HtmlWriteString(writerRight, closeString);
                 }
                 else
                 {
+                    var text = (isSvg)
+                        ? DiffTags.GetSvgInsertString(ChangeInformation.Subset)
+                        : DiffTags.GetXmlInsertString(ChangeInformation.Subset);
+
                     XmlDiffView.HtmlWriteString(
                         writerRight, 
                         XmlDiffViewOperation.Change,
-                        DiffTags.GetSvgInsertString(ChangeInformation.Subset));
+                        text);
                 }
             }
             else
