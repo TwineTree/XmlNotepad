@@ -428,7 +428,8 @@ namespace Microsoft.XmlDiffPatch
             string changedXmlFile,
             string resultHtmlViewFile,
             bool fragment,
-            XmlDiffOptions options)
+            XmlDiffOptions options,
+            bool isSvg)
         {
             bool identicalData = this.DifferencesSideBySideAsHtml(
                 sourceXmlFile,
@@ -436,7 +437,8 @@ namespace Microsoft.XmlDiffPatch
                 resultHtmlViewFile,
                 fragment,
                 true,
-                options);
+                options,
+                isSvg);
 
             return identicalData;
         }
@@ -457,7 +459,8 @@ namespace Microsoft.XmlDiffPatch
             string resultHtmlViewFile,
             bool fragment,
             bool appendToOutputFile,
-            XmlDiffOptions options)
+            XmlDiffOptions options,
+            bool isSvg)
         {
             // Append to the specified output file.
             FileMode mode;
@@ -484,7 +487,8 @@ namespace Microsoft.XmlDiffPatch
                     fragment,
                     options,
                     this.outputData,
-                    this.outputDataRight);
+                    this.outputDataRight,
+                    isSvg);
             }
             finally
             {
@@ -508,7 +512,8 @@ namespace Microsoft.XmlDiffPatch
             string sourceXmlFile,
             string changedXmlFile,
             bool fragment,
-            XmlDiffOptions options)
+            XmlDiffOptions options,
+            bool isSvg)
         {
             MemoryStream data = new MemoryStream();
             try
@@ -526,7 +531,8 @@ namespace Microsoft.XmlDiffPatch
                     fragment,
                     options,
                     this.outputData,
-                    this.outputDataRight);
+                    this.outputDataRight,
+                    isSvg);
 
                 // Move the data to the memory stream
                 this.outputData.Flush();
@@ -556,13 +562,13 @@ namespace Microsoft.XmlDiffPatch
         /// TextWriter object (which may be a file).
         /// </summary>
         /// <param name="htmlOutput">Data stream for output</param>
-        public void GetHtml(TextWriter htmlOutput, TextWriter htmlOutputRight)
+        public void GetHtml(TextWriter htmlOutput, TextWriter htmlOutputRight, bool isSvg)
         {
             LastVisitedOpId = 0;
             XmlDiffViewNode.ResetLineNumbers();
             XmlTextWriter writer = new XmlTextWriter(htmlOutput);
             XmlTextWriter writerRight = new XmlTextWriter(htmlOutputRight);
-            this.viewDocument.DrawHtml(writer, writerRight, 10);
+            this.viewDocument.DrawHtml(writer, writerRight, 10, isSvg);
         }
 
         #endregion
@@ -894,7 +900,8 @@ namespace Microsoft.XmlDiffPatch
             bool fragment,
             XmlDiffOptions options,
             TextWriter resultHtml,
-            TextWriter resultHtmlRight)
+            TextWriter resultHtmlRight,
+            bool isSvg)
         {
             bool identicalData = this.MarkupBaselineWithChanges(
                 sourceXmlFile,
@@ -909,7 +916,7 @@ namespace Microsoft.XmlDiffPatch
                     identicalData,
                     resultHtml);
             
-            this.GetHtml(resultHtml, resultHtmlRight);
+            this.GetHtml(resultHtml, resultHtmlRight, isSvg);
 
             this.SideBySideHtmlFooter(resultHtml);
 

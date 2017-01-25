@@ -183,7 +183,11 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent)
+        internal override void DrawHtml(
+            XmlWriter writer,
+            XmlWriter writerRight,
+            int indent,
+            bool isSvg)
         {
             if (Operation == XmlDiffViewOperation.Change)
             {

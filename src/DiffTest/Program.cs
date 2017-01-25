@@ -84,7 +84,7 @@
                         Encoding.UTF8);
 
                     //SideBySideXmlNotepadHeader(filename, changed, htmlWriter);
-                    diffView.GetHtml(htmlWriter, htmlWriterRight);
+                    diffView.GetHtml(htmlWriter, htmlWriterRight, true);
                     //htmlWriter.WriteLine("</body></html>");
                     htmlWriter.Flush();
                     htmlWriterRight.Flush();

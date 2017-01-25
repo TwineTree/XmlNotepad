@@ -204,14 +204,18 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal void HtmlDrawChildNodes(XmlWriter writer, XmlWriter writerRight, int indent)
+        internal void HtmlDrawChildNodes(
+            XmlWriter writer, 
+            XmlWriter writerRight,
+            int indent,
+            bool isSvg)
         {
             XmlDiffViewNode curChild = this.ChildNodes;
             while (curChild != null)
             {
                 if (curChild.NodeType != XmlNodeType.XmlDeclaration)
                 {
-                    curChild.DrawHtml(writer, writerRight, indent);
+                    curChild.DrawHtml(writer, writerRight, indent, isSvg);
                 }
                 curChild = curChild.NextSibling;
             }
