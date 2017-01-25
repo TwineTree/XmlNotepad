@@ -78,7 +78,11 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output data stream</param>
         /// <param name="indent">size of indentation</param>
-        internal override void DrawHtml(XmlWriter writer, int indent)
+        internal override void DrawHtml(
+            XmlWriter writer,
+            XmlWriter writerRight, 
+            int indent,
+            bool isSvg)
         {
             if (Operation == XmlDiffViewOperation.Change)
             {
@@ -86,6 +90,10 @@ namespace Microsoft.XmlDiffPatch
 
                 XmlDiffView.HtmlStartRow(writer);
                 this.DrawLineNumber(writer);
+
+                XmlDiffView.HtmlStartRow(writerRight);
+                this.DrawLineNumber(writerRight);
+
                 XmlDiffView.HtmlStartCell(writer, indent);
 
                 XmlDiffView.HtmlWriteString(writer, "&");
@@ -96,21 +104,24 @@ namespace Microsoft.XmlDiffPatch
                 XmlDiffView.HtmlWriteString(writer, ";");
 
                 XmlDiffView.HtmlEndCell(writer);
-                XmlDiffView.HtmlStartCell(writer, indent);
 
-                XmlDiffView.HtmlWriteString(writer, "&");
+                XmlDiffView.HtmlStartCell(writerRight, indent);
+
+                XmlDiffView.HtmlWriteString(writerRight, "&");
                 XmlDiffView.HtmlWriteString(
-                    writer, 
+                    writerRight, 
                     XmlDiffViewOperation.Change, 
                     ChangeInformation.LocalName);
-                XmlDiffView.HtmlWriteString(writer, ";");
+                XmlDiffView.HtmlWriteString(writerRight, ";");
 
-                XmlDiffView.HtmlEndCell(writer);
+                XmlDiffView.HtmlEndCell(writerRight);
+
                 XmlDiffView.HtmlEndRow(writer);
+                XmlDiffView.HtmlEndRow(writerRight);
             }
             else
             {
-                DrawHtmlNoChange(writer, indent);
+                DrawHtmlNoChange(writer, writerRight, indent);
             }
         }
 

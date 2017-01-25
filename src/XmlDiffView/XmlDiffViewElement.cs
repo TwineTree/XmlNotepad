@@ -39,7 +39,7 @@ namespace Microsoft.XmlDiffPatch
         private bool ignorePrefixes;
 
         #endregion
-        
+
         #region  Constructors section
 
         /// <summary>
@@ -51,10 +51,10 @@ namespace Microsoft.XmlDiffPatch
         /// </param>
         /// <param name="ignorePrefix">Ignore differences in the prefix</param>
         public XmlDiffViewElement(
-            string localName, 
-            string prefix, 
-            string namespaceUri, 
-            bool ignorePrefix) : 
+            string localName,
+            string prefix,
+            string namespaceUri,
+            bool ignorePrefix) :
             base(XmlNodeType.Element)
         {
             this.LocalName = localName;
@@ -67,7 +67,7 @@ namespace Microsoft.XmlDiffPatch
             }
             else
             {
-                    this.Name = this.LocalName;
+                this.Name = this.LocalName;
             }
             this.ignorePrefixes = ignorePrefix;
         }
@@ -166,9 +166,9 @@ namespace Microsoft.XmlDiffPatch
         }
 
         #endregion
-        
+
         #region Methods section
-        
+
         /// <summary>
         /// Gets an attribute object for the specified attribute name.
         /// </summary>
@@ -179,7 +179,7 @@ namespace Microsoft.XmlDiffPatch
             XmlDiffViewAttribute curAttr = this.Attributes;
             while (curAttr != null)
             {
-                if (curAttr.Name == name && 
+                if (curAttr.Name == name &&
                     curAttr.Operation == XmlDiffViewOperation.Match)
                 {
                     return curAttr;
@@ -195,7 +195,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="newAttr">the attribute object to insert</param>
         /// <param name="refAttr">attribute object to insert after</param>
         public void InsertAttributeAfter(
-            XmlDiffViewAttribute newAttr, 
+            XmlDiffViewAttribute newAttr,
             XmlDiffViewAttribute refAttr)
         {
             Debug.Assert(newAttr != null);
@@ -230,9 +230,9 @@ namespace Microsoft.XmlDiffPatch
         internal override XmlDiffViewNode Clone(bool deep)
         {
             XmlDiffViewElement newElement = new XmlDiffViewElement(
-                this.LocalName, 
-                this.Prefix, 
-                this.NamespaceUri, 
+                this.LocalName,
+                this.Prefix,
+                this.NamespaceUri,
                 this.ignorePrefixes);
 
             // attributes
@@ -241,7 +241,7 @@ namespace Microsoft.XmlDiffPatch
                 XmlDiffViewAttribute lastNewAtt = null;
                 while (curAttr != null)
                 {
-                    XmlDiffViewAttribute newAttr = 
+                    XmlDiffViewAttribute newAttr =
                         (XmlDiffViewAttribute)curAttr.Clone(true);
                     newElement.InsertAttributeAfter(newAttr, lastNewAtt);
                     lastNewAtt = newAttr;
@@ -276,134 +276,75 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, int indent)
+        internal override void DrawHtml(
+            XmlWriter writer,
+            XmlWriter writerRight,
+            int indent,
+            bool isSvg)
         {
             XmlDiffViewOperation typeOfDifference = Operation;
             bool closeElement = false;
+            bool closeElementRight = false;
             XmlDiffView.HtmlStartRow(writer);
             this.DrawLineNumber(writer);
-            
+
+            XmlDiffView.HtmlStartRow(writerRight);
+            this.DrawLineNumber(writerRight);
+
             for (int i = 0; i < 2; i++)
             {
-                XmlDiffView.HtmlStartCell(writer, indent);
-                if (XmlDiffView.HtmlWriteToPane[(int)Operation, i])
-                {
-                    closeElement = OutputNavigationHtml(writer);
-
-                    if (Operation == XmlDiffViewOperation.Change)
-                    {
-                        typeOfDifference = XmlDiffViewOperation.Match;
-                        XmlDiffView.HtmlWriteString(
-                            writer, 
-                            typeOfDifference, 
-                            Tags.XmlOpenBegin);
-                        if (i == 0)
-                        {
-                            this.DrawHtmlNameChange(
-                                writer, 
-                                this.LocalName, 
-                                this.Prefix);
-                        }
-                        else
-                        {
-                            this.DrawHtmlNameChange(
-                                writer, 
-                                ChangeInformation.LocalName, 
-                                ChangeInformation.Prefix);
-                        }
-                    }
-                    else
-                    {
-                        this.DrawHtmlName(
-                            writer, 
-                            typeOfDifference, 
-                            Tags.XmlOpenBegin, 
-                            string.Empty);
-                    }
-    
-                    if (closeElement)
-                    {
-                        // write the closing '</A>' tag.
-                        writer.WriteEndElement();
-                        closeElement = false;
-                    }
-
-                    // attributes
-                    this.DrawHtmlAttributes(writer, i);
-
-                    // close start tag
-                    if (ChildNodes != null)
-                    {
-                        XmlDiffView.HtmlWriteString(
-                            writer, 
-                            typeOfDifference, 
-                            Tags.XmlOpenEnd);
-                    }
-                    else
-                    {
-                        XmlDiffView.HtmlWriteString(
-                            writer, 
-                            typeOfDifference, 
-                            Tags.XmlOpenEndTerse);
-                    }
-                }
-                else
-                {
-                    XmlDiffView.HtmlWriteEmptyString(writer);
-                }
-                XmlDiffView.HtmlEndCell(writer);
-            }
-            XmlDiffView.HtmlEndRow(writer);
-
-            // child nodes
-            if (ChildNodes != null)
-            {
-                HtmlDrawChildNodes(writer, indent + XmlDiffView.DeltaIndent);
-
-                // end element
-                XmlDiffView.HtmlStartRow(writer);
-
-                this.DrawEndLineNumber(writer);
-
-                for (int i = 0; i < 2; i++)
+                if (i == 0)
                 {
                     XmlDiffView.HtmlStartCell(writer, indent);
                     if (XmlDiffView.HtmlWriteToPane[(int)Operation, i])
                     {
+                        closeElement = OutputNavigationHtml(writer);
+
                         if (Operation == XmlDiffViewOperation.Change)
                         {
-                            Debug.Assert(typeOfDifference == 
-                                XmlDiffViewOperation.Match);
+                            typeOfDifference = XmlDiffViewOperation.Match;
                             XmlDiffView.HtmlWriteString(
-                                writer, 
-                                typeOfDifference, 
-                                Tags.XmlCloseBegin);
-                            if (i == 0)
-                            {
-                                this.DrawHtmlNameChange(
-                                    writer, 
-                                    this.LocalName, 
-                                    this.Prefix);
-                            }
-                            else
-                            {
-                                this.DrawHtmlNameChange(
-                                    writer, 
-                                    ChangeInformation.LocalName, 
-                                    ChangeInformation.Prefix);
-                            }
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                typeOfDifference, 
-                                Tags.XmlOpenEnd);
+                                writer,
+                                typeOfDifference,
+                                Tags.XmlOpenBegin);
+                            this.DrawHtmlNameChange(
+                                writer,
+                                this.LocalName,
+                                this.Prefix);
                         }
                         else
                         {
                             this.DrawHtmlName(
-                                writer, 
-                                typeOfDifference, 
-                                Tags.XmlCloseBegin,
-                                Tags.XmlCloseEnd);
+                                writer,
+                                typeOfDifference,
+                                Tags.XmlOpenBegin,
+                                string.Empty);
+                        }
+
+                        if (closeElement)
+                        {
+                            // write the closing '</A>' tag.
+                            //writer.WriteEndElement();
+                            closeElement = false;
+                        }
+
+                        // attributes
+                        this.DrawHtmlAttributes(writer, i);
+
+                        // close start tag
+                        if (ChildNodes != null)
+                        {
+                            XmlDiffView.HtmlWriteString(
+                                writer,
+                                typeOfDifference,
+                                Tags.XmlOpenEnd);
+                        }
+                        else
+                        {
+                            XmlDiffView.HtmlWriteString(
+                                writer,
+                                typeOfDifference,
+                                Tags.XmlOpenEnd);
                         }
                     }
                     else
@@ -412,7 +353,161 @@ namespace Microsoft.XmlDiffPatch
                     }
                     XmlDiffView.HtmlEndCell(writer);
                 }
+                else
+                {
+                    XmlDiffView.HtmlStartCell(writerRight, indent);
+                    if (XmlDiffView.HtmlWriteToPane[(int)Operation, i])
+                    {
+                        closeElementRight = OutputNavigationHtml(writerRight);
+
+                        if (Operation == XmlDiffViewOperation.Change)
+                        {
+                            typeOfDifference = XmlDiffViewOperation.Match;
+                            XmlDiffView.HtmlWriteString(
+                                writerRight,
+                                typeOfDifference,
+                                Tags.XmlOpenBegin);
+                            this.DrawHtmlNameChange(
+                                writerRight,
+                                ChangeInformation.LocalName,
+                                ChangeInformation.Prefix);
+                        }
+                        else
+                        {
+                            this.DrawHtmlName(
+                                writerRight,
+                                typeOfDifference,
+                                Tags.XmlOpenBegin,
+                                string.Empty);
+                        }
+
+                        if (closeElementRight)
+                        {
+                            // write the closing '</A>' tag.
+                            //writerRight.WriteEndElement();
+                            closeElementRight = false;
+                        }
+
+                        // attributes
+                        this.DrawHtmlAttributes(writerRight, i);
+
+                        // close start tag
+                        if (ChildNodes != null)
+                        {
+                            XmlDiffView.HtmlWriteString(
+                                writerRight,
+                                typeOfDifference,
+                                Tags.XmlOpenEnd);
+                        }
+                        else
+                        {
+                            XmlDiffView.HtmlWriteString(
+                                writerRight,
+                                typeOfDifference,
+                                Tags.XmlOpenEnd);
+                        }
+                    }
+                    else
+                    {
+                        XmlDiffView.HtmlWriteEmptyString(writerRight);
+                    }
+                    XmlDiffView.HtmlEndCell(writerRight);
+                }
+            }
+            XmlDiffView.HtmlEndRow(writer);
+            XmlDiffView.HtmlEndRow(writerRight);
+
+            // child nodes
+            if (/*ChildNodes != null*/true)
+            {
+                HtmlDrawChildNodes(writer, writerRight, indent + XmlDiffView.DeltaIndent, isSvg);
+
+                // end element
+                XmlDiffView.HtmlStartRow(writer);
+                XmlDiffView.HtmlStartRow(writerRight);
+
+                this.DrawEndLineNumber(writer);
+                this.DrawEndLineNumber(writerRight);
+
+                for (int i = 0; i < 2; i++)
+                {
+                    if (i == 0)
+                    {
+                        XmlDiffView.HtmlStartCell(writer, indent);
+                        if (XmlDiffView.HtmlWriteToPane[(int)Operation, i])
+                        {
+                            if (Operation == XmlDiffViewOperation.Change)
+                            {
+                                Debug.Assert(typeOfDifference ==
+                                    XmlDiffViewOperation.Match);
+                                XmlDiffView.HtmlWriteString(
+                                    writer,
+                                    typeOfDifference,
+                                    Tags.XmlCloseBegin);
+                                this.DrawHtmlNameChange(
+                                    writer,
+                                    this.LocalName,
+                                    this.Prefix);
+                                XmlDiffView.HtmlWriteString(
+                                    writer,
+                                    typeOfDifference,
+                                    Tags.XmlOpenEnd);
+                            }
+                            else
+                            {
+                                this.DrawHtmlName(
+                                    writer,
+                                    typeOfDifference,
+                                    Tags.XmlCloseBegin,
+                                    Tags.XmlCloseEnd);
+                            }
+                        }
+                        else
+                        {
+                            XmlDiffView.HtmlWriteEmptyString(writer);
+                        }
+                        XmlDiffView.HtmlEndCell(writer);
+                    }
+                    else
+                    {
+                        XmlDiffView.HtmlStartCell(writerRight, indent);
+                        if (XmlDiffView.HtmlWriteToPane[(int)Operation, i])
+                        {
+                            if (Operation == XmlDiffViewOperation.Change)
+                            {
+                                Debug.Assert(typeOfDifference ==
+                                    XmlDiffViewOperation.Match);
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    typeOfDifference,
+                                    Tags.XmlCloseBegin);
+                                this.DrawHtmlNameChange(
+                                    writerRight,
+                                    ChangeInformation.LocalName,
+                                    ChangeInformation.Prefix);
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    typeOfDifference,
+                                    Tags.XmlOpenEnd);
+                            }
+                            else
+                            {
+                                this.DrawHtmlName(
+                                    writerRight,
+                                    typeOfDifference,
+                                    Tags.XmlCloseBegin,
+                                    Tags.XmlCloseEnd);
+                            }
+                        }
+                        else
+                        {
+                            XmlDiffView.HtmlWriteEmptyString(writerRight);
+                        }
+                        XmlDiffView.HtmlEndCell(writerRight);
+                    }
+                }
                 XmlDiffView.HtmlEndRow(writer);
+                XmlDiffView.HtmlEndRow(writerRight);
             }
         }
 
@@ -514,7 +609,7 @@ namespace Microsoft.XmlDiffPatch
         ///  the left (baseline) or right side (actual) of the 
         ///  display</param>
         private void DrawHtmlAttributes(
-            XmlWriter writer, 
+            XmlWriter writer,
             int paneNo)
         {
             if (this.Attributes == null)
@@ -544,17 +639,17 @@ namespace Microsoft.XmlDiffPatch
                         if (paneNo == 0)
                         {
                             curAttr.DrawHtmlAttributeChange(
-                                writer, 
-                                curAttr.LocalName, 
-                                curAttr.Prefix, 
+                                writer,
+                                curAttr.LocalName,
+                                curAttr.Prefix,
                                 curAttr.AttributeValue,
                                 this.ignorePrefixes);
                         }
                         else
                         {
                             curAttr.DrawHtmlAttributeChange(
-                                writer, 
-                                curAttr.ChangeInformation.LocalName, 
+                                writer,
+                                curAttr.ChangeInformation.LocalName,
                                 curAttr.ChangeInformation.Prefix,
                                 curAttr.ChangeInformation.Subset,
                                 this.ignorePrefixes);
@@ -563,8 +658,8 @@ namespace Microsoft.XmlDiffPatch
                     else
                     {
                         curAttr.DrawHtmlAttribute(
-                            writer, 
-                            this.ignorePrefixes, 
+                            writer,
+                            this.ignorePrefixes,
                             curAttr.Operation);
                     }
                 }
@@ -628,7 +723,7 @@ namespace Microsoft.XmlDiffPatch
                             // raise exception for new type of 
                             // difference created in XmlDiff object.
                             throw new ArgumentException(
-                                "Unrecognised type of difference", 
+                                "Unrecognised type of difference",
                                 "Operation");
                     }
                     curAttr = (XmlDiffViewAttribute)curAttr.NextSibling;
@@ -645,14 +740,14 @@ namespace Microsoft.XmlDiffPatch
         /// element (without the prefix)</param>
         /// <param name="prefix">prefix</param>
         private void DrawHtmlNameChange(
-            XmlWriter writer, 
-            string localName, 
+            XmlWriter writer,
+            string localName,
             string prefix)
         {
             if (prefix != string.Empty)
             {
                 XmlDiffView.HtmlWriteString(
-                    writer, 
+                    writer,
                     this.ignorePrefixes ? XmlDiffViewOperation.Ignore : (prefix == ChangeInformation.Prefix) ? XmlDiffViewOperation.Match : XmlDiffViewOperation.Change,
                     prefix + ":");
             }
@@ -683,7 +778,7 @@ namespace Microsoft.XmlDiffPatch
             {
                 writer.Write(this.Prefix + ":");
             }
-            writer.Write(Difference.Tag + 
+            writer.Write(Difference.Tag +
                 Difference.NodeAdded + this.LocalName);
             writer.Write(tagEnd);
         }
@@ -733,11 +828,11 @@ namespace Microsoft.XmlDiffPatch
             {
                 writer.Write(this.Prefix + ":");
             }
-            writer.Write(Difference.Tag + 
-                Difference.ChangeBegin + 
+            writer.Write(Difference.Tag +
+                Difference.ChangeBegin +
                 this.LocalName +
-                Difference.ChangeTo + 
-                ChangeInformation.LocalName + 
+                Difference.ChangeTo +
+                ChangeInformation.LocalName +
                 Difference.ChangeEnd);
             writer.Write(tagEnd);
         }
@@ -764,8 +859,8 @@ namespace Microsoft.XmlDiffPatch
             }
             writer.Write(this.LocalName + " " +
                 Difference.Tag +
-                Difference.NodeMovedFromBegin + 
-                OperationId + 
+                Difference.NodeMovedFromBegin +
+                OperationId +
                 Difference.NodeMovedFromEnd);
             writer.Write(tagEnd);
         }
@@ -807,31 +902,31 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="tagStart">xml tags at start of statement</param>
         /// <param name="tagEnd">xml tags at end of statement</param>
         private void DrawHtmlName(
-            XmlWriter writer, 
-            XmlDiffViewOperation typeOfDifference, 
-            string tagStart, 
+            XmlWriter writer,
+            XmlDiffViewOperation typeOfDifference,
+            string tagStart,
             string tagEnd)
         {
             if (this.Prefix != string.Empty && this.ignorePrefixes)
             {
                 XmlDiffView.HtmlWriteString(
-                    writer, 
-                    typeOfDifference, 
+                    writer,
+                    typeOfDifference,
                     tagStart);
                 XmlDiffView.HtmlWriteString(
-                    writer, 
-                    XmlDiffViewOperation.Ignore, 
+                    writer,
+                    XmlDiffViewOperation.Ignore,
                     this.Prefix + ":");
                 XmlDiffView.HtmlWriteString(
-                    writer, 
-                    typeOfDifference, 
+                    writer,
+                    typeOfDifference,
                     this.LocalName + tagEnd);
             }
             else
             {
                 XmlDiffView.HtmlWriteString(
-                    writer, 
-                    typeOfDifference, 
+                    writer,
+                    typeOfDifference,
                     tagStart + this.Name + tagEnd);
             }
         }
@@ -894,14 +989,14 @@ namespace Microsoft.XmlDiffPatch
                         writer.Write(
                             Difference.Tag + "=" + Difference.ChangeBegin +
                             attr.Prefix + Difference.ChangeTo +
-                            attr.ChangeInformation.Prefix + 
+                            attr.ChangeInformation.Prefix +
                             Difference.ChangeEnd);
                         writer.Write(attr.ChangeInformation.Prefix + ":");
                         break;
                     default:
                         Trace.WriteLine("Unexpected type of difference");
                         throw new ArgumentException(
-                            "Unexpected type of difference", 
+                            "Unexpected type of difference",
                             "Operation");
                 }
             }
@@ -950,7 +1045,7 @@ namespace Microsoft.XmlDiffPatch
             }
         }
 
-        
+
         /// <summary>
         /// Generate text output data for an unchanged attribute.
         /// </summary>
@@ -962,28 +1057,28 @@ namespace Microsoft.XmlDiffPatch
         {
             if (this.ignorePrefixes)
             {
-                if (attr.Prefix == "xmlns" || (attr.LocalName == "xmlns" && 
+                if (attr.Prefix == "xmlns" || (attr.LocalName == "xmlns" &&
                     attr.Prefix == string.Empty))
                 {
                     writer.Write(attr.Name);
-                    writer.Write("='" + 
+                    writer.Write("='" +
                         RemoveTabsAndNewlines(attr.AttributeValue) + "'");
                     return;
                 }
                 else if (attr.Prefix != string.Empty)
                 {
                     writer.Write(attr.Prefix + ":");
-                    writer.Write(attr.LocalName + "=\"" + 
+                    writer.Write(attr.LocalName + "=\"" +
                         RemoveTabsAndNewlines(attr.AttributeValue) + "\"");
                     return;
                 }
             }
-            writer.Write(attr.Name + "=\"" + 
+            writer.Write(attr.Name + "=\"" +
                 RemoveTabsAndNewlines(attr.AttributeValue) + "\"");
         }
-        
+
         #endregion
-        
-   }
+
+    }
 
 }

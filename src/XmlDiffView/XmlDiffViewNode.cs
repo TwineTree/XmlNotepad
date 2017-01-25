@@ -251,7 +251,11 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">data stream</param>
         /// <param name="indent">size of indentation</param>
-        internal abstract void DrawHtml(XmlWriter writer, int indent);
+        internal abstract void DrawHtml(
+            XmlWriter writer,
+            XmlWriter writerRight,
+            int indent,
+            bool isSvg);
 
         /// <summary>
         /// Abstract method to generate text output data
@@ -265,35 +269,63 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output data stream</param>
         /// <param name="indent">size of indentation</param>
-        internal void DrawHtmlNoChange(XmlWriter writer, int indent) 
+        internal void DrawHtmlNoChange(XmlWriter writer, XmlWriter writerRight, int indent) 
         {
             Debug.Assert(this.NodeType != XmlNodeType.Element && this.NodeType != XmlNodeType.Attribute);
             Debug.Assert(this.Operation != XmlDiffViewOperation.Change);
             XmlDiffView.HtmlStartRow(writer);
             this.DrawLineNumber(writer);
 
+            XmlDiffView.HtmlStartRow(writerRight);
+            this.DrawLineNumber(writerRight);
+
             for (int i = 0; i < 2; i++) 
             {
-                XmlDiffView.HtmlStartCell(writer, indent);
-                if (XmlDiffView.HtmlWriteToPane[(int)this.Operation, i]) 
+                if (i == 0)
                 {
-                    bool closeElement = this.OutputNavigationHtml(writer);
-                    XmlDiffView.HtmlWriteString(
-                        writer, 
-                        this.Operation, 
-                        this.OuterXml);
-                    if (closeElement) 
+                    XmlDiffView.HtmlStartCell(writer, indent);
+                    if (XmlDiffView.HtmlWriteToPane[(int)this.Operation, i])
                     {
-                        writer.WriteEndElement();
+                        bool closeElement = this.OutputNavigationHtml(writer);
+                        XmlDiffView.HtmlWriteString(
+                            writer,
+                            this.Operation,
+                            this.OuterXml);
+                        if (closeElement)
+                        {
+                            writer.WriteEndElement();
+                        }
                     }
+                    else
+                    {
+                        XmlDiffView.HtmlWriteEmptyString(writer);
+                    }
+                    XmlDiffView.HtmlEndCell(writer);
                 }
-                else 
+                else
                 {
-                    XmlDiffView.HtmlWriteEmptyString(writer);
+                    XmlDiffView.HtmlStartCell(writerRight, indent);
+                    if (XmlDiffView.HtmlWriteToPane[(int)this.Operation, i])
+                    {
+                        bool closeElement = this.OutputNavigationHtml(writerRight);
+                        XmlDiffView.HtmlWriteString(
+                            writerRight,
+                            this.Operation,
+                            this.OuterXml);
+                        if (closeElement)
+                        {
+                            writerRight.WriteEndElement();
+                        }
+                    }
+                    else
+                    {
+                        XmlDiffView.HtmlWriteEmptyString(writerRight);
+                    }
+                    XmlDiffView.HtmlEndCell(writerRight);
                 }
-                XmlDiffView.HtmlEndCell(writer);
             }
             XmlDiffView.HtmlEndRow(writer);
+            XmlDiffView.HtmlEndRow(writerRight);
         }
 
         static int lastLineNumber;
@@ -304,50 +336,50 @@ namespace Microsoft.XmlDiffPatch
         }
 
         internal void DrawLineNumber(XmlWriter writer) {
-            writer.WriteStartElement("td");
-            writer.WriteAttributeString("class", "code");
+            //writer.WriteStartElement("td");
+            //writer.WriteAttributeString("class", "code");
 
-            if (this.operationId != XmlDiffView.LastVisitedOpId)
-            {
-                XmlDiffView.LastVisitedOpId = this.operationId;
-                // only write this anchor if the parent elemnt was not also changed or the 
-                // previous element was not changed (makes navigating changes work better).
-                if (this.operationId != 0 && 
-                    this.Parent.Operation != this.Operation &&
-                     (this.PreviousSibling == null ||
-                     this.PreviousSibling.Operation != this.Operation))
-                {
-                    writer.WriteStartElement("a");
-                    writer.WriteAttributeString("name", "id" + operationId);
-                    if (lastLineNumber != this.LineNumber)
-                    {
-                        lastLineNumber = this.LineNumber;
-                        writer.WriteRaw(this.LineNumber.ToString());
-                    }
-                    else
-                    {
-                        writer.WriteRaw("&#xA0;");
-                    }
-                    writer.WriteEndElement();
-                }
-            }
-            else
-            {
-                if (lastLineNumber != this.LineNumber)
-                {
-                    lastLineNumber = this.LineNumber;
-                    writer.WriteRaw(this.LineNumber.ToString());
-                }
-            }
-            writer.WriteEndElement();
+            //if (this.operationId != XmlDiffView.LastVisitedOpId)
+            //{
+            //    XmlDiffView.LastVisitedOpId = this.operationId;
+            //    // only write this anchor if the parent elemnt was not also changed or the 
+            //    // previous element was not changed (makes navigating changes work better).
+            //    if (this.operationId != 0 && 
+            //        this.Parent.Operation != this.Operation &&
+            //         (this.PreviousSibling == null ||
+            //         this.PreviousSibling.Operation != this.Operation))
+            //    {
+            //        writer.WriteStartElement("a");
+            //        writer.WriteAttributeString("name", "id" + operationId);
+            //        if (lastLineNumber != this.LineNumber)
+            //        {
+            //            lastLineNumber = this.LineNumber;
+            //            writer.WriteRaw(this.LineNumber.ToString());
+            //        }
+            //        else
+            //        {
+            //            writer.WriteRaw("&#xA0;");
+            //        }
+            //        writer.WriteEndElement();
+            //    }
+            //}
+            //else
+            //{
+            //    if (lastLineNumber != this.LineNumber)
+            //    {
+            //        lastLineNumber = this.LineNumber;
+            //        writer.WriteRaw(this.LineNumber.ToString());
+            //    }
+            //}
+            //writer.WriteEndElement();
         }
 
         public void DrawEndLineNumber(XmlWriter writer)
         {
-            writer.WriteStartElement("td");
-            writer.WriteAttributeString("class", "code");
-            writer.WriteRaw(this.EndLine.ToString());
-            writer.WriteEndElement();
+            //writer.WriteStartElement("td");
+            //writer.WriteAttributeString("class", "code");
+            //writer.WriteRaw(this.EndLine.ToString());
+            //writer.WriteEndElement();
         }
 
         /// <summary>
@@ -361,23 +393,23 @@ namespace Microsoft.XmlDiffPatch
         {
             if (this.Parent == null || this.Parent.Operation != this.Operation) 
             {
-                //switch (this.Operation) 
-                //{
-                //    case XmlDiffViewOperation.MoveFrom:
-                //        writer.WriteStartElement("a");
-                //        writer.WriteAttributeString("name", "move_from_" + this.OperationId);
-                //        writer.WriteEndElement();
-                //        writer.WriteStartElement("a");
-                //        writer.WriteAttributeString("href", "#move_to_" + this.OperationId);
-                //        return true;
-                //    case XmlDiffViewOperation.MoveTo:
-                //        writer.WriteStartElement("a");
-                //        writer.WriteAttributeString("name", "move_to_" + this.OperationId);
-                //        writer.WriteEndElement();
-                //        writer.WriteStartElement("a");
-                //        writer.WriteAttributeString("href", "#move_from_" + this.OperationId);
-                //        return true;
-                //}
+                switch (this.Operation)
+                {
+                    case XmlDiffViewOperation.MoveFrom:
+                        //writer.WriteStartElement("a");
+                        //writer.WriteAttributeString("name", "move_from_" + this.OperationId);
+                        //writer.WriteEndElement();
+                        //writer.WriteStartElement("a");
+                        //writer.WriteAttributeString("href", "#move_to_" + this.OperationId);
+                        return true;
+                    case XmlDiffViewOperation.MoveTo:
+                        //writer.WriteStartElement("a");
+                        //writer.WriteAttributeString("name", "move_to_" + this.OperationId);
+                        //writer.WriteEndElement();
+                        //writer.WriteStartElement("a");
+                        //writer.WriteAttributeString("href", "#move_from_" + this.OperationId);
+                        return true;
+                }
             }
             return false;
         }
@@ -393,13 +425,13 @@ namespace Microsoft.XmlDiffPatch
         /// have been removed</returns>
         protected string RemoveTabsAndNewlines(string innerText)
         {
-            const string tab = "\t";
-            // Remove tabs
-            innerText = innerText.Replace(tab, String.Empty);
-            // remove newlines
-            innerText = innerText.Replace(Environment.NewLine, String.Empty);
-            // trim off leading and trailing spaces
-            innerText = innerText.Trim();
+            //const string tab = "\t";
+            //// Remove tabs
+            //innerText = innerText.Replace(tab, String.Empty);
+            //// remove newlines
+            //innerText = innerText.Replace(Environment.NewLine, String.Empty);
+            //// trim off leading and trailing spaces
+            //innerText = innerText.Trim();
 
             return innerText;
         }
