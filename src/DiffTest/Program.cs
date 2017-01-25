@@ -90,15 +90,24 @@
                     htmlWriterRight.Flush();
                     tempFile.Position = 0;
                     tempFileRight.Position = 0;
+
                     var sr = new StreamReader(tempFile);
                     var html = sr.ReadToEnd();
+                    var srRight = new StreamReader(tempFileRight);
+                    var htmlRight = srRight.ReadToEnd();
+
                     string noHTML = Regex.Replace(html, @"&nbsp;", " ");
                     html = HttpUtility.HtmlDecode(noHTML);
-                    html = string.Format(
-                            @"<html><head>{0}</head><body>{1}</body></html>",
+                    string noHTMLRight = Regex.Replace(htmlRight, @"&nbsp;", " ");
+                    htmlRight = HttpUtility.HtmlDecode(noHTMLRight);
+
+                    var diffHtml = string.Format(
+                            @"<html><head>{0}</head><body><table><tr><td>{1}</td><td>{2}</td></tr></table></body></html>",
                             @"<script src='svg.js' ></script>",
-                            html);
-                    File.WriteAllText(@"C:\wazo_studio\diff_test\files\result.html", html);
+                            html,
+                            htmlRight);
+
+                    File.WriteAllText(@"C:\wazo_studio\diff_test\files\result.html", diffHtml);
                     Console.WriteLine(html);
                 }
             }

@@ -22,7 +22,8 @@ namespace Microsoft.XmlDiffPatch
     using System.IO;
     using System.Xml;
     using System.Diagnostics;
-    
+    using View;
+
     #endregion
 
     /// <summary>
@@ -152,15 +153,15 @@ namespace Microsoft.XmlDiffPatch
                     XmlDiffView.HtmlWriteString(
                         writer, 
                         XmlDiffViewOperation.Change, 
-                        this.InnerText);
+                        DiffTags.GetSvgDeleteString(this.InnerText));
                     XmlDiffView.HtmlWriteString(writer, closeString);
                 }
                 else
                 {
                     XmlDiffView.HtmlWriteString(
                         writer, 
-                        XmlDiffViewOperation.Change, 
-                        this.InnerText);
+                        XmlDiffViewOperation.Change,
+                        DiffTags.GetSvgDeleteString(this.InnerText));
                 }
                 XmlDiffView.HtmlEndCell(writer);                
                 XmlDiffView.HtmlStartCell(writer, indent);
@@ -175,15 +176,15 @@ namespace Microsoft.XmlDiffPatch
                     XmlDiffView.HtmlWriteString(
                         writerRight, 
                         XmlDiffViewOperation.Change, 
-                        ChangeInformation.Subset);
+                        DiffTags.GetSvgInsertString(ChangeInformation.Subset));
                     XmlDiffView.HtmlWriteString(writerRight, closeString);
                 }
                 else
                 {
                     XmlDiffView.HtmlWriteString(
                         writerRight, 
-                        XmlDiffViewOperation.Change, 
-                        ChangeInformation.Subset);
+                        XmlDiffViewOperation.Change,
+                        DiffTags.GetSvgInsertString(ChangeInformation.Subset));
                 }
             }
             else

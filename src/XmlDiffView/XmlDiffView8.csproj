@@ -99,6 +99,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Difference.cs" />
+    <Compile Include="DiffTags.cs" />
     <Compile Include="Indent.cs" />
     <Compile Include="OperationDescriptor.cs">
       <SubType>Code</SubType>
