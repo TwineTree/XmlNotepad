@@ -7,14 +7,17 @@
 
     public static class DiffTags
     {
-        public const string START_INSERT_TAG = "<INS STYLE=\"background:#E6FFE6;\">";
-        public const string END_INSERT_TAG = "</INS>";
+        public static string GetXmlInsertString(string text)
+        {
+            var tag = "<INS STYLE=\"background:#E6FFE6;\">{0}</INS>";
+            return string.Format(tag, text);
+        }
 
-        public const string START_DELETE_TAG = "<DEL STYLE=\"background:#FFE6E6;\">";
-        public const string END_DELETE_TAG = "</DEL>";
-
-        public const string START_INSERT_SVG_TAG = "<svg:tspan fill=\"red\" style=\"text-decoration:line-through;\">";
-        public const string END_INSERT_SVG_TAG = "</svg:tspan>";
+        public static string GetXmlDeleteString(string text)
+        {
+            var tag = "<DEL STYLE=\"background:#FFE6E6;\">{0}</DEL>";
+            return string.Format(tag, text);
+        }
 
         public static string GetSvgInsertString(string text)
         {
