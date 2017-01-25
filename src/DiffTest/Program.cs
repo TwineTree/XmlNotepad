@@ -108,7 +108,8 @@
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.ProhibitDtd = false;
-            settings.CheckCharacters = false;
+            settings.CheckCharacters = true;
+            settings.IgnoreWhitespace = false;
             settings.ConformanceLevel = ConformanceLevel.Document;
             return settings;
         }

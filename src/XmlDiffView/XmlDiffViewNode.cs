@@ -421,13 +421,13 @@ namespace Microsoft.XmlDiffPatch
         /// have been removed</returns>
         protected string RemoveTabsAndNewlines(string innerText)
         {
-            const string tab = "\t";
-            // Remove tabs
-            innerText = innerText.Replace(tab, String.Empty);
-            // remove newlines
-            innerText = innerText.Replace(Environment.NewLine, String.Empty);
-            // trim off leading and trailing spaces
-            innerText = innerText.Trim();
+            //const string tab = "\t";
+            //// Remove tabs
+            //innerText = innerText.Replace(tab, String.Empty);
+            //// remove newlines
+            //innerText = innerText.Replace(Environment.NewLine, String.Empty);
+            //// trim off leading and trailing spaces
+            //innerText = innerText.Trim();
 
             return innerText;
         }

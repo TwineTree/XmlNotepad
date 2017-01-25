@@ -594,6 +594,7 @@ namespace Microsoft.XmlDiffPatch
             string str)
         {
             HtmlSetColor(pane, op);
+            str = (str == string.Empty) ? " " : str;
             pane.WriteString(str);
             HtmlResetColor(pane);
         }
