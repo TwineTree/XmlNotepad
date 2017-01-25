@@ -84,13 +84,20 @@
                         Encoding.UTF8);
 
                     //SideBySideXmlNotepadHeader(filename, changed, htmlWriter);
-                    diffView.GetHtml(htmlWriter);
-                    htmlWriter.WriteLine("</body></html>");
+                    diffView.GetHtml(htmlWriter, htmlWriterRight);
+                    //htmlWriter.WriteLine("</body></html>");
                     htmlWriter.Flush();
+                    htmlWriterRight.Flush();
                     tempFile.Position = 0;
+                    tempFileRight.Position = 0;
                     var sr = new StreamReader(tempFile);
                     var html = sr.ReadToEnd();
-                    html = HttpUtility.HtmlDecode(html);
+                    string noHTML = Regex.Replace(html, @"&nbsp;", " ");
+                    html = HttpUtility.HtmlDecode(noHTML);
+                    html = string.Format(
+                            @"<html><head>{0}</head><body>{1}</body></html>",
+                            @"<script src='svg.js' ></script>",
+                            html);
                     File.WriteAllText(@"C:\wazo_studio\diff_test\files\result.html", html);
                     Console.WriteLine(html);
                 }
@@ -102,6 +109,7 @@
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.ProhibitDtd = false;
             settings.CheckCharacters = false;
+            settings.ConformanceLevel = ConformanceLevel.Document;
             return settings;
         }
 
@@ -153,7 +161,7 @@
 
             MemoryStream htmlStream = new MemoryStream();
             StreamWriter tw = new StreamWriter(htmlStream);
-            dv.GetHtml(tw);
+            //dv.GetHtml(tw);
             tw.Flush();
 
             htmlStream.Position = 0;

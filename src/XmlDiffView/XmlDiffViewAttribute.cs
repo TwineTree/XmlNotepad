@@ -249,7 +249,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">output stream</param>
         /// <param name="indent">size of indent</param>
         [Obsolete("This method should never be called", true)]
-        internal override void DrawHtml(XmlWriter writer, int indent)
+        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent)
         {
             throw new Exception("This method should never be called.");
         }
@@ -287,8 +287,8 @@ namespace Microsoft.XmlDiffPatch
                 if (this.OperationId != 0 && this.Parent.Operation != this.Operation &&
                     (this.PreviousSibling == null || this.PreviousSibling.Operation != this.Operation))
                 {
-                    writer.WriteStartElement("a");
-                    writer.WriteAttributeString("name", "id" + this.OperationId);
+                    //writer.WriteStartElement("a");
+                    //writer.WriteAttributeString("name", "id" + this.OperationId);
                     opid = true;
                 }
             }
@@ -328,7 +328,7 @@ namespace Microsoft.XmlDiffPatch
 
             if (opid)
             {
-                writer.WriteEndElement();
+                //writer.WriteEndElement();
             }
         }
 
@@ -358,8 +358,8 @@ namespace Microsoft.XmlDiffPatch
                     (this.PreviousSibling == null || this.PreviousSibling.Operation == XmlDiffViewOperation.Match))
                 {
                     XmlDiffView.LastVisitedOpId = this.OperationId;
-                    writer.WriteStartElement("a");
-                    writer.WriteAttributeString("name", "id" + this.OperationId);
+                    //writer.WriteStartElement("a");
+                    //writer.WriteAttributeString("name", "id" + this.OperationId);
                     opid = true;
                 }
             }

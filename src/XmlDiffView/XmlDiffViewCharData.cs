@@ -123,7 +123,7 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, int indent)
+        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent)
         {
             if (Operation == XmlDiffViewOperation.Change)
             {
@@ -164,29 +164,31 @@ namespace Microsoft.XmlDiffPatch
                 }
                 XmlDiffView.HtmlEndCell(writer);                
                 XmlDiffView.HtmlStartCell(writer, indent);
+                XmlDiffView.HtmlEndCell(writer);
+                XmlDiffView.HtmlEndRow(writer);
 
+                XmlDiffView.HtmlStartRow(writerRight);
+                this.DrawLineNumber(writerRight);
                 if (openString != string.Empty)
                 {
-                    XmlDiffView.HtmlWriteString(writer, openString);
+                    XmlDiffView.HtmlWriteString(writerRight, openString);
                     XmlDiffView.HtmlWriteString(
-                        writer, 
+                        writerRight, 
                         XmlDiffViewOperation.Change, 
                         ChangeInformation.Subset);
-                    XmlDiffView.HtmlWriteString(writer, closeString);
+                    XmlDiffView.HtmlWriteString(writerRight, closeString);
                 }
                 else
                 {
                     XmlDiffView.HtmlWriteString(
-                        writer, 
+                        writerRight, 
                         XmlDiffViewOperation.Change, 
                         ChangeInformation.Subset);
                 }
-                XmlDiffView.HtmlEndCell(writer);
-                XmlDiffView.HtmlEndRow(writer);
             }
             else
             {
-                DrawHtmlNoChange(writer, indent);
+                DrawHtmlNoChange(writer, writerRight, indent);
             }
         }
         

@@ -76,30 +76,39 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, int indent)
+        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent)
         {
             if (Operation == XmlDiffViewOperation.Change)
             {
                 XmlDiffView.HtmlStartRow(writer);
                 this.DrawLineNumber(writer);
+
+                XmlDiffView.HtmlStartRow(writerRight);
+                this.DrawLineNumber(writerRight);
+
                 XmlDiffView.HtmlStartCell(writer, indent);
                 XmlDiffView.HtmlWriteString(writer, Tags.XmlDeclarationBegin);
                 XmlDiffView.HtmlWriteString(writer, XmlDiffViewOperation.Change, this.declarationValue);
                 XmlDiffView.HtmlWriteString(writer, Tags.XmlDeclarationEnd);
 
                 XmlDiffView.HtmlEndCell(writer);
-                XmlDiffView.HtmlStartCell(writer, indent);
 
-                XmlDiffView.HtmlWriteString(writer, Tags.XmlDeclarationBegin);
-                XmlDiffView.HtmlWriteString(writer, XmlDiffViewOperation.Change, ChangeInformation.Subset);
-                XmlDiffView.HtmlWriteString(writer, Tags.XmlDeclarationEnd);
 
-                XmlDiffView.HtmlEndCell(writer);
+                XmlDiffView.HtmlStartCell(writerRight, indent);
+
+                XmlDiffView.HtmlWriteString(writerRight, Tags.XmlDeclarationBegin);
+                XmlDiffView.HtmlWriteString(writerRight, XmlDiffViewOperation.Change, ChangeInformation.Subset);
+                XmlDiffView.HtmlWriteString(writerRight, Tags.XmlDeclarationEnd);
+
+                XmlDiffView.HtmlEndCell(writerRight);
+
+
                 XmlDiffView.HtmlEndRow(writer);
+                XmlDiffView.HtmlEndRow(writerRight);
             }
             else
             {
-                DrawHtmlNoChange(writer, indent);
+                DrawHtmlNoChange(writer, writerRight, indent);
             }
         }
 

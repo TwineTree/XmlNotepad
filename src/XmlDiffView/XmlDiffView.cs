@@ -157,6 +157,8 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         private TextWriter outputData = null;
 
+        private TextWriter outputDataRight = null;
+
         /// <summary>
         /// Stores the final output.
         /// </summary>
@@ -325,6 +327,12 @@ namespace Microsoft.XmlDiffPatch
                 mode,
                 FileAccess.Write));
 
+            this.outputDataRight = new StreamWriter(
+                new FileStream(
+                outputTextPath,
+                mode,
+                FileAccess.Write));
+
             bool identicalData;
             identicalData = this.GetDifferencesAsFormattedText(
                 sourceXmlFile,
@@ -334,6 +342,7 @@ namespace Microsoft.XmlDiffPatch
 
             // close the output stream to release the file.
             this.outputData.Close();
+            this.outputDataRight.Close();
 
             return identicalData;
         }
@@ -474,11 +483,13 @@ namespace Microsoft.XmlDiffPatch
                     changedXmlFile,
                     fragment,
                     options,
-                    this.outputData);
+                    this.outputData,
+                    this.outputDataRight);
             }
             finally
             {
                 this.outputData.Close();
+                this.outputDataRight.Close();
             }
 
             return identicalData;
@@ -505,13 +516,17 @@ namespace Microsoft.XmlDiffPatch
                 this.outputData = new StreamWriter(
                     data,
                     System.Text.Encoding.Unicode);
+                this.outputDataRight = new StreamWriter(
+                    data,
+                    System.Text.Encoding.Unicode);
 
                 bool identicalData = this.DifferencesSideBySideAsHtml(
                     sourceXmlFile,
                     changedXmlFile,
                     fragment,
                     options,
-                    this.outputData);
+                    this.outputData,
+                    this.outputDataRight);
 
                 // Move the data to the memory stream
                 this.outputData.Flush();
@@ -541,12 +556,13 @@ namespace Microsoft.XmlDiffPatch
         /// TextWriter object (which may be a file).
         /// </summary>
         /// <param name="htmlOutput">Data stream for output</param>
-        public void GetHtml(TextWriter htmlOutput)
+        public void GetHtml(TextWriter htmlOutput, TextWriter htmlOutputRight)
         {
             LastVisitedOpId = 0;
             XmlDiffViewNode.ResetLineNumbers();
             XmlTextWriter writer = new XmlTextWriter(htmlOutput);
-            this.viewDocument.DrawHtml(writer, 10);
+            XmlTextWriter writerRight = new XmlTextWriter(htmlOutputRight);
+            this.viewDocument.DrawHtml(writer, writerRight, 10);
         }
 
         #endregion
@@ -598,9 +614,9 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="indent">Text indentation characters</param>
         internal static void HtmlStartCell(XmlWriter writer, int indent)
         {
-            writer.WriteStartElement("td");
-            writer.WriteAttributeString("class", "code");
-            writer.WriteAttributeString("style", "padding-left: " + indent.ToString() + "pt;");
+            //writer.WriteStartElement("td");
+            //writer.WriteAttributeString("class", "code");
+            //writer.WriteAttributeString("style", "padding-left: " + indent.ToString() + "pt;");
         }
 
         /// <summary>
@@ -609,7 +625,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">output stream</param>
         internal static void HtmlEndCell(XmlWriter writer)
         {
-            writer.WriteFullEndElement();
+            //writer.WriteFullEndElement();
         }
 
         /// <summary>
@@ -619,8 +635,8 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">Output data stream</param>
         internal static void HtmlBr(XmlWriter writer)
         {
-            writer.WriteStartElement("br");
-            writer.WriteEndElement();
+            //writer.WriteStartElement("br");
+            //writer.WriteEndElement();
         }
 
         /// <summary>
@@ -629,7 +645,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">output data stream</param>
         internal static void HtmlStartRow(XmlWriter writer)
         {
-            writer.WriteStartElement("tr");
+            //writer.WriteStartElement("tr");
         }
 
         /// <summary>
@@ -638,7 +654,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">output data stream</param>
         internal static void HtmlEndRow(XmlWriter writer)
         {
-            writer.WriteFullEndElement();
+            //writer.WriteFullEndElement();
         }
 
         /// <summary>
@@ -761,8 +777,8 @@ namespace Microsoft.XmlDiffPatch
             XmlWriter pane,
             XmlDiffViewOperation op)
         {
-            pane.WriteStartElement("span");
-            pane.WriteAttributeString("class", op.ToString().ToLowerInvariant());
+            //pane.WriteStartElement("span");
+            //pane.WriteAttributeString("class", op.ToString().ToLowerInvariant());
         }
 
         /// <summary>
@@ -771,7 +787,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="pane">baseline/actual data presentation sections</param>
         private static void HtmlResetColor(XmlWriter pane)
         {
-            pane.WriteFullEndElement();
+            //pane.WriteFullEndElement();
         }
 
         /// <include file='doc\XmlDiff.uex' path='docs/doc[@for="XmlDiff.ParseOptions"]/*' />
@@ -876,7 +892,8 @@ namespace Microsoft.XmlDiffPatch
             string changedXmlFile,
             bool fragment,
             XmlDiffOptions options,
-            TextWriter resultHtml)
+            TextWriter resultHtml,
+            TextWriter resultHtmlRight)
         {
             bool identicalData = this.MarkupBaselineWithChanges(
                 sourceXmlFile,
@@ -891,7 +908,7 @@ namespace Microsoft.XmlDiffPatch
                     identicalData,
                     resultHtml);
             
-            this.GetHtml(resultHtml);
+            this.GetHtml(resultHtml, resultHtmlRight);
 
             this.SideBySideHtmlFooter(resultHtml);
 

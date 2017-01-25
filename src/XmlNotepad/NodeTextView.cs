@@ -564,7 +564,7 @@ namespace XmlNotepad {
 
                 char ellipsis = Convert.ToChar(0x2026);
 
-                value = value.Trim();
+                //value = value.Trim();
 
                 int i = value.IndexOfAny(new char[] { '\r', '\n' });
                 if (i > 0) {

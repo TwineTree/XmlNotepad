@@ -24,7 +24,7 @@ namespace Microsoft.XmlDiffPatch
     using System.Xml;
     using System.IO;
     using System.Diagnostics;
-    
+
     #endregion
 
     /// <summary>
@@ -52,7 +52,7 @@ namespace Microsoft.XmlDiffPatch
         private string internalDtdSubset;
 
         #endregion
-        
+
         #region  Constructors section
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="publicId">value of the PUBLIC  declaration 'attribute'</param>
         /// <param name="systemId">value of the SYSTEM declaration 'attribute'</param>
         /// <param name="documentTypeSubset">The inner declaration data</param>
-        public XmlDiffViewDocumentType(string name, string publicId, string systemId, string documentTypeSubset) : base(XmlNodeType.DocumentType) 
+        public XmlDiffViewDocumentType(string name, string publicId, string systemId, string documentTypeSubset) : base(XmlNodeType.DocumentType)
         {
             this.Name = name;
             this.PublicId = (publicId == null) ? string.Empty : publicId;
@@ -73,7 +73,7 @@ namespace Microsoft.XmlDiffPatch
         #endregion
 
         #region Properties section
-      
+
         /// <summary>
         /// Gets and sets the value of the SYSTEM declaration 'attribute'
         /// </summary>
@@ -161,7 +161,7 @@ namespace Microsoft.XmlDiffPatch
         }
 
         #endregion
-        
+
         #region Methods section
 
         /// <summary>
@@ -183,193 +183,356 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal override void DrawHtml(XmlWriter writer, int indent) 
+        internal override void DrawHtml(XmlWriter writer, XmlWriter writerRight, int indent)
         {
-            if (Operation == XmlDiffViewOperation.Change) 
+            if (Operation == XmlDiffViewOperation.Change)
             {
                 XmlDiffView.HtmlStartRow(writer);
                 this.DrawLineNumber(writer);
 
-                for (int i = 0; i < 2; i++) 
+                XmlDiffView.HtmlStartRow(writerRight);
+                this.DrawLineNumber(writerRight);
+
+                for (int i = 0; i < 2; i++)
                 {
-                    XmlDiffView.HtmlStartCell(writer, indent);
-                    // name
-                    XmlDiffView.HtmlWriteString(
-                        writer, 
-                        XmlDiffViewOperation.Match, 
-                        Tags.XmlDocumentTypeBegin);
                     if (i == 0)
                     {
+                        XmlDiffView.HtmlStartCell(writer, indent);
+                        // name
                         XmlDiffView.HtmlWriteString(
-                            writer, 
-                            (this.Name == ChangeInformation.LocalName) ? XmlDiffViewOperation.Match : XmlDiffViewOperation.Change, 
+                            writer,
+                            XmlDiffViewOperation.Match,
+                            Tags.XmlDocumentTypeBegin);
+                        XmlDiffView.HtmlWriteString(
+                            writer,
+                            (this.Name == ChangeInformation.LocalName) ? XmlDiffViewOperation.Match : XmlDiffViewOperation.Change,
                             this.Name);
-                    }
-                    else 
-                    {
                         XmlDiffView.HtmlWriteString(
-                            writer, 
-                            (this.Name == ChangeInformation.LocalName) ? XmlDiffViewOperation.Match : XmlDiffViewOperation.Change, 
-                            ChangeInformation.LocalName);
-                    }
-                    XmlDiffView.HtmlWriteString(
-                        writer, 
-                        XmlDiffViewOperation.Match, 
-                        " ");
+                            writer,
+                            XmlDiffViewOperation.Match,
+                            " ");
 
-                    string systemString = "SYSTEM ";
-                    // public id
-                    if (this.PublicId == ChangeInformation.Prefix) 
-                    {
-                        // match
-                        if (this.PublicId != string.Empty) 
+                        string systemString = "SYSTEM ";
+                        // public id
+                        if (this.PublicId == ChangeInformation.Prefix)
                         {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Match, 
-                                Tags.DtdPublic + "\"" + this.PublicId + "\" ");
-                            systemString = string.Empty;
-                        }
-                    }
-                    else 
-                    {
-                        // add
-                        if (this.PublicId == string.Empty) 
-                        {
-                            if (i == 1) 
+                            // match
+                            if (this.PublicId != string.Empty)
                             {
                                 XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Add,
-                                    Tags.DtdPublic + "\"" + ChangeInformation.Prefix + "\" ");
-                                systemString = string.Empty;
-                            }
-                        }
-                            // remove
-                        else if (ChangeInformation.Prefix == string.Empty) 
-                        {
-                            if (i == 0) 
-                            {
-                                XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Remove,
+                                    writer,
+                                    XmlDiffViewOperation.Match,
                                     Tags.DtdPublic + "\"" + this.PublicId + "\" ");
                                 systemString = string.Empty;
                             }
                         }
-                            // change
-                        else 
+                        else
                         {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Change,
-                                Tags.DtdPublic + "\"" + ((i == 0) ? this.PublicId : ChangeInformation.Prefix) + "\"");
-                            systemString = string.Empty;
-                        }
-                    }
-
-                    // system id
-                    if (this.SystemId == ChangeInformation.NamespaceUri) 
-                    {
-                        if (this.SystemId != string.Empty) 
-                        {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Match, 
-                                systemString  + "\"" + this.SystemId + "\" ");
-                        }
-                    }
-                    else 
-                    { 
-                        // add 
-                        if (this.SystemId == string.Empty) 
-                        {
-                            if (i == 1) 
+                            // add
+                            if (this.PublicId == string.Empty)
                             {
-                                XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Add, 
-                                    systemString  + "\"" + ChangeInformation.NamespaceUri + "\" ");
-                            }                
-                        }
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Add,
+                                        Tags.DtdPublic + "\"" + ChangeInformation.Prefix + "\" ");
+                                    systemString = string.Empty;
+                                }
+                            }
                             // remove
-                        else if (ChangeInformation.Prefix == string.Empty) 
-                        {
-                            if (i == 0) 
+                            else if (ChangeInformation.Prefix == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Remove,
+                                        Tags.DtdPublic + "\"" + this.PublicId + "\" ");
+                                    systemString = string.Empty;
+                                }
+                            }
+                            // change
+                            else
                             {
                                 XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Remove, 
-                                    systemString  + "\"" + this.SystemId + "\"");
+                                    writer,
+                                    XmlDiffViewOperation.Change,
+                                    Tags.DtdPublic + "\"" + ((i == 0) ? this.PublicId : ChangeInformation.Prefix) + "\"");
+                                systemString = string.Empty;
                             }
                         }
-                            // change
-                        else 
-                        {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Change, 
-                                systemString  + "\"" + ((i == 0) ? this.SystemId : ChangeInformation.NamespaceUri) + "\" ");
-                        }
-                    }
 
-                    // internal subset
-                    if (this.Subset == ChangeInformation.Subset) 
-                    {
-                        if (this.Subset != string.Empty) 
+                        // system id
+                        if (this.SystemId == ChangeInformation.NamespaceUri)
                         {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Match, 
-                                "[" + this.Subset + "]");
-                        }
-                    }
-                    else 
-                    {
-                        // add 
-                        if (this.Subset == string.Empty) 
-                        {
-                            if (i == 1) 
+                            if (this.SystemId != string.Empty)
                             {
                                 XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Add, 
-                                    "[" + ChangeInformation.Subset + "]");
-                            }                
+                                    writer,
+                                    XmlDiffViewOperation.Match,
+                                    systemString + "\"" + this.SystemId + "\" ");
+                            }
                         }
+                        else
+                        {
+                            // add 
+                            if (this.SystemId == string.Empty)
+                            {
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Add,
+                                        systemString + "\"" + ChangeInformation.NamespaceUri + "\" ");
+                                }
+                            }
                             // remove
-                        else if (ChangeInformation.Subset == string.Empty) 
-                        {
-                            if (i == 0) 
+                            else if (ChangeInformation.Prefix == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Remove,
+                                        systemString + "\"" + this.SystemId + "\"");
+                                }
+                            }
+                            // change
+                            else
                             {
                                 XmlDiffView.HtmlWriteString(
-                                    writer, 
-                                    XmlDiffViewOperation.Remove, 
+                                    writer,
+                                    XmlDiffViewOperation.Change,
+                                    systemString + "\"" + ((i == 0) ? this.SystemId : ChangeInformation.NamespaceUri) + "\" ");
+                            }
+                        }
+
+                        // internal subset
+                        if (this.Subset == ChangeInformation.Subset)
+                        {
+                            if (this.Subset != string.Empty)
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writer,
+                                    XmlDiffViewOperation.Match,
                                     "[" + this.Subset + "]");
                             }
                         }
-                            // change
-                        else 
+                        else
                         {
-                            XmlDiffView.HtmlWriteString(
-                                writer, 
-                                XmlDiffViewOperation.Change, 
-                                "[" + ((i == 0) ? this.Subset : ChangeInformation.Subset) + "]");
+                            // add 
+                            if (this.Subset == string.Empty)
+                            {
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Add,
+                                        "[" + ChangeInformation.Subset + "]");
+                                }
+                            }
+                            // remove
+                            else if (ChangeInformation.Subset == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writer,
+                                        XmlDiffViewOperation.Remove,
+                                        "[" + this.Subset + "]");
+                                }
+                            }
+                            // change
+                            else
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writer,
+                                    XmlDiffViewOperation.Change,
+                                    "[" + ((i == 0) ? this.Subset : ChangeInformation.Subset) + "]");
+                            }
                         }
-                    }
 
-                    // close start tag
-                    XmlDiffView.HtmlWriteString(
-                        writer, 
-                        XmlDiffViewOperation.Match, 
-                        Tags.XmlDocumentTypeEnd);
-                    XmlDiffView.HtmlEndCell(writer);
+                        // close start tag
+                        XmlDiffView.HtmlWriteString(
+                            writer,
+                            XmlDiffViewOperation.Match,
+                            Tags.XmlDocumentTypeEnd);
+                        XmlDiffView.HtmlEndCell(writer);
+                    }
+                    else
+                    {
+                        XmlDiffView.HtmlStartCell(writerRight, indent);
+                        // name
+                        XmlDiffView.HtmlWriteString(
+                            writerRight,
+                            XmlDiffViewOperation.Match,
+                            Tags.XmlDocumentTypeBegin);
+                        XmlDiffView.HtmlWriteString(
+                            writerRight,
+                            (this.Name == ChangeInformation.LocalName) ? XmlDiffViewOperation.Match : XmlDiffViewOperation.Change,
+                            ChangeInformation.LocalName);
+                        XmlDiffView.HtmlWriteString(
+                            writerRight,
+                            XmlDiffViewOperation.Match,
+                            " ");
+
+                        string systemString = "SYSTEM ";
+                        // public id
+                        if (this.PublicId == ChangeInformation.Prefix)
+                        {
+                            // match
+                            if (this.PublicId != string.Empty)
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Match,
+                                    Tags.DtdPublic + "\"" + this.PublicId + "\" ");
+                                systemString = string.Empty;
+                            }
+                        }
+                        else
+                        {
+                            // add
+                            if (this.PublicId == string.Empty)
+                            {
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Add,
+                                        Tags.DtdPublic + "\"" + ChangeInformation.Prefix + "\" ");
+                                    systemString = string.Empty;
+                                }
+                            }
+                            // remove
+                            else if (ChangeInformation.Prefix == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Remove,
+                                        Tags.DtdPublic + "\"" + this.PublicId + "\" ");
+                                    systemString = string.Empty;
+                                }
+                            }
+                            // change
+                            else
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Change,
+                                    Tags.DtdPublic + "\"" + ((i == 0) ? this.PublicId : ChangeInformation.Prefix) + "\"");
+                                systemString = string.Empty;
+                            }
+                        }
+
+                        // system id
+                        if (this.SystemId == ChangeInformation.NamespaceUri)
+                        {
+                            if (this.SystemId != string.Empty)
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Match,
+                                    systemString + "\"" + this.SystemId + "\" ");
+                            }
+                        }
+                        else
+                        {
+                            // add 
+                            if (this.SystemId == string.Empty)
+                            {
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Add,
+                                        systemString + "\"" + ChangeInformation.NamespaceUri + "\" ");
+                                }
+                            }
+                            // remove
+                            else if (ChangeInformation.Prefix == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Remove,
+                                        systemString + "\"" + this.SystemId + "\"");
+                                }
+                            }
+                            // change
+                            else
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Change,
+                                    systemString + "\"" + ((i == 0) ? this.SystemId : ChangeInformation.NamespaceUri) + "\" ");
+                            }
+                        }
+
+                        // internal subset
+                        if (this.Subset == ChangeInformation.Subset)
+                        {
+                            if (this.Subset != string.Empty)
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Match,
+                                    "[" + this.Subset + "]");
+                            }
+                        }
+                        else
+                        {
+                            // add 
+                            if (this.Subset == string.Empty)
+                            {
+                                if (i == 1)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Add,
+                                        "[" + ChangeInformation.Subset + "]");
+                                }
+                            }
+                            // remove
+                            else if (ChangeInformation.Subset == string.Empty)
+                            {
+                                if (i == 0)
+                                {
+                                    XmlDiffView.HtmlWriteString(
+                                        writerRight,
+                                        XmlDiffViewOperation.Remove,
+                                        "[" + this.Subset + "]");
+                                }
+                            }
+                            // change
+                            else
+                            {
+                                XmlDiffView.HtmlWriteString(
+                                    writerRight,
+                                    XmlDiffViewOperation.Change,
+                                    "[" + ((i == 0) ? this.Subset : ChangeInformation.Subset) + "]");
+                            }
+                        }
+
+                        // close start tag
+                        XmlDiffView.HtmlWriteString(
+                            writerRight,
+                            XmlDiffViewOperation.Match,
+                            Tags.XmlDocumentTypeEnd);
+                        XmlDiffView.HtmlEndCell(writerRight);
+                    }
                 }
+
                 XmlDiffView.HtmlEndRow(writer);
+                XmlDiffView.HtmlEndRow(writerRight);
             }
-            else 
+            else
             {
-                DrawHtmlNoChange(writer, indent);
+                DrawHtmlNoChange(writer, writerRight, indent);
             }
         }
 
@@ -627,7 +790,7 @@ namespace Microsoft.XmlDiffPatch
                 this.Name + this.DocumentTypeSudoAttributes() +
                 "[" + writer.NewLine +
                 XmlDiffView.IndentText(indent + indent) +
-                Tags.XmlCommentOldStyleBegin + " " + Difference.Tag + 
+                Tags.XmlCommentOldStyleBegin + " " + Difference.Tag +
                 Difference.DocumentTypeAdded +
                 " " + Tags.XmlCommentOldStyleEnd + writer.NewLine +
                 this.internalDtdSubset +
@@ -744,7 +907,7 @@ namespace Microsoft.XmlDiffPatch
                 " " + Difference.Tag +
                 Difference.ChangeBegin + this.internalDtdSubset + Difference.ChangeEnd +
                 writer.NewLine +
-                " " + Tags.XmlCommentOldStyleEnd + 
+                " " + Tags.XmlCommentOldStyleEnd +
                 writer.NewLine);
             // include main body and closing tags
             writer.Write(XmlDiffView.IndentText(indent + indent) +
@@ -770,6 +933,6 @@ namespace Microsoft.XmlDiffPatch
         }
 
         #endregion
-        
+
     }
 }

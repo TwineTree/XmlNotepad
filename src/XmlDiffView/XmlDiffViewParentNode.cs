@@ -33,9 +33,9 @@ namespace Microsoft.XmlDiffPatch
         private int sourceChildNodesCount;
         // source nodes indexed by their relative position
         private XmlDiffViewNode[] sourceChildNodesIndex;
-        
+
         #endregion
-        
+
         #region  Constructors section
 
         /// <summary>
@@ -43,10 +43,10 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="nodeType">Type of xml node</param>
         internal XmlDiffViewParentNode(
-            XmlNodeType nodeType) : base(nodeType) 
+            XmlNodeType nodeType) : base(nodeType)
         {
         }
-        
+
         #endregion
 
         #region Properties section
@@ -85,11 +85,11 @@ namespace Microsoft.XmlDiffPatch
         /// Gets the first child node
         /// </summary>
         internal override XmlDiffViewNode FirstChildNode
-        { 
-            get 
-            { 
-                return this.ChildNodes; 
-            } 
+        {
+            get
+            {
+                return this.ChildNodes;
+            }
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Microsoft.XmlDiffPatch
         }
 
         #endregion
-        
+
         #region Methods section
 
         /// <summary>
@@ -119,21 +119,21 @@ namespace Microsoft.XmlDiffPatch
         /// <exception cref="ArgumentException">Thrown when the
         /// index value is out of bounds (Has the CreateSourceNodesIndex
         ///  method been called?)</exception>
-        internal XmlDiffViewNode GetSourceChildNode(int index) 
-        { 
-            if (index < 0 || 
-                index >= this.SourceChildNodesCount || 
+        internal XmlDiffViewNode GetSourceChildNode(int index)
+        {
+            if (index < 0 ||
+                index >= this.SourceChildNodesCount ||
                 this.SourceChildNodesCount == 0)
             {
                 throw new ArgumentException("index");
             }
             if (this.SourceChildNodesCount == 0)
             {
-                    return null;
+                return null;
             }
             if (this.SourceChildNodesIndex == null)
             {
-                    this.CreateSourceNodesIndex();
+                this.CreateSourceNodesIndex();
             }
             return this.SourceChildNodesIndex[index];
         }
@@ -143,16 +143,16 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         internal void CreateSourceNodesIndex()
         {
-            if (this.SourceChildNodesIndex != null || 
+            if (this.SourceChildNodesIndex != null ||
                 this.SourceChildNodesCount == 0)
             {
-                    return;
+                return;
             }
-            this.SourceChildNodesIndex = new 
+            this.SourceChildNodesIndex = new
                 XmlDiffViewNode[this.SourceChildNodesCount];
-        
+
             XmlDiffViewNode curChild = this.ChildNodes;
-            for (int i = 0; i < this.SourceChildNodesCount; i++, curChild = curChild.NextSibling) 
+            for (int i = 0; i < this.SourceChildNodesCount; i++, curChild = curChild.NextSibling)
             {
                 Debug.Assert(curChild != null);
                 this.SourceChildNodesIndex[i] = curChild;
@@ -167,12 +167,12 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="referenceChild">node to insert after</param>
         /// <param name="sourceNode">This is a baseline node</param>
         internal void InsertChildAfter(
-            XmlDiffViewNode newChild, 
-            XmlDiffViewNode referenceChild, 
-            bool sourceNode) 
+            XmlDiffViewNode newChild,
+            XmlDiffViewNode referenceChild,
+            bool sourceNode)
         {
             Debug.Assert(newChild != null);
-            if (referenceChild == null) 
+            if (referenceChild == null)
             {
                 // head of list.
                 newChild.NextSibling = this.ChildNodes;
@@ -182,11 +182,12 @@ namespace Microsoft.XmlDiffPatch
                 }
                 this.ChildNodes = newChild;
             }
-            else 
+            else
             {
                 newChild.NextSibling = referenceChild.NextSibling;
                 newChild.PreviousSibling = referenceChild;
-                if (referenceChild.NextSibling != null) {
+                if (referenceChild.NextSibling != null)
+                {
                     referenceChild.NextSibling.PreviousSibling = newChild;
                 }
                 referenceChild.NextSibling = newChild;
@@ -203,12 +204,15 @@ namespace Microsoft.XmlDiffPatch
         /// </summary>
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
-        internal void HtmlDrawChildNodes(XmlWriter writer, int indent) 
+        internal void HtmlDrawChildNodes(XmlWriter writer, XmlWriter writerRight, int indent)
         {
             XmlDiffViewNode curChild = this.ChildNodes;
-            while (curChild != null) 
+            while (curChild != null)
             {
-                curChild.DrawHtml(writer, indent);
+                if (curChild.NodeType != XmlNodeType.XmlDeclaration)
+                {
+                    curChild.DrawHtml(writer, writerRight, indent);
+                }
                 curChild = curChild.NextSibling;
             }
         }
@@ -219,12 +223,12 @@ namespace Microsoft.XmlDiffPatch
         /// <param name="writer">output stream</param>
         /// <param name="indent">number of indentations</param>
         internal void TextDrawChildNodes(
-            TextWriter writer, 
+            TextWriter writer,
             int indent)
         {
             indent += Indent.IncrementSize;
             XmlDiffViewNode curChild = this.ChildNodes;
-            while (curChild != null) 
+            while (curChild != null)
             {
                 curChild.DrawText(writer, indent);
                 curChild = curChild.NextSibling;
@@ -232,6 +236,6 @@ namespace Microsoft.XmlDiffPatch
         }
 
         #endregion
-        
+
     }
 }
