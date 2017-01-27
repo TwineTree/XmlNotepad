@@ -255,8 +255,8 @@ namespace Microsoft.XmlDiffPatch
             else
             {
                 var text = (isSvg)
-                    ? DiffTags.GetSvgInsertString(this.innerText)
-                    : DiffTags.GetSvgInsertString(this.innerText);
+                    ? DiffTags.GetSvgDeleteString(this.innerText)
+                    : DiffTags.GetXmlDeleteString(this.innerText);
 
                 XmlDiffView.HtmlWriteString(
                     writer,
@@ -291,7 +291,7 @@ namespace Microsoft.XmlDiffPatch
             {
                 var text = (isSvg)
                     ? DiffTags.GetSvgInsertString(this.innerText)
-                    : DiffTags.GetSvgInsertString(this.innerText);
+                    : DiffTags.GetXmlInsertString(this.innerText);
 
                 XmlDiffView.HtmlWriteString(writer, openString);
                 XmlDiffView.HtmlWriteString(
@@ -304,7 +304,7 @@ namespace Microsoft.XmlDiffPatch
             {
                 var text = (isSvg)
                     ? DiffTags.GetSvgInsertString(this.innerText)
-                    : DiffTags.GetSvgInsertString(this.innerText);
+                    : DiffTags.GetXmlInsertString(this.innerText);
 
                 XmlDiffView.HtmlWriteString(
                     writer,
