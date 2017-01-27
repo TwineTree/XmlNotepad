@@ -211,10 +211,62 @@ namespace Microsoft.XmlDiffPatch
             {
                 DrawTextAdd(writerRight, isSvg);
             }
+            else if (Operation == XmlDiffViewOperation.Remove)
+            {
+                DrawTextRemove(writerRight, isSvg);
+            }
             else
             {
                 DrawHtmlNoChange(writer, writerRight, indent);
             }
+        }
+
+        private void DrawTextRemove(XmlWriter writer, bool isSvg)
+        {
+            string openString = string.Empty;
+            string closeString = string.Empty;
+            if (NodeType == XmlNodeType.CDATA)
+            {
+                openString = Tags.XmlCharacterDataBegin;
+                closeString = Tags.XmlCharacterDataEnd;
+            }
+            else if (NodeType == XmlNodeType.Comment)
+            {
+                openString = Tags.XmlCommentOldStyleBegin;
+                closeString = Tags.XmlCommentOldStyleEnd;
+            }
+
+            XmlDiffView.HtmlStartRow(writer);
+            this.DrawLineNumber(writer);
+            XmlDiffView.HtmlStartCell(writer, 10);
+            if (openString != string.Empty)
+            {
+                var text = (isSvg)
+                    ? DiffTags.GetSvgDeleteString(this.innerText)
+                    : DiffTags.GetXmlDeleteString(this.innerText);
+
+                XmlDiffView.HtmlWriteString(writer, openString);
+                XmlDiffView.HtmlWriteString(
+                    writer,
+                    XmlDiffViewOperation.Change,
+                    text);
+                XmlDiffView.HtmlWriteString(writer, closeString);
+            }
+            else
+            {
+                var text = (isSvg)
+                    ? DiffTags.GetSvgInsertString(this.innerText)
+                    : DiffTags.GetSvgInsertString(this.innerText);
+
+                XmlDiffView.HtmlWriteString(
+                    writer,
+                    XmlDiffViewOperation.Change,
+                    text);
+            }
+            XmlDiffView.HtmlEndCell(writer);
+            XmlDiffView.HtmlStartCell(writer, 10);
+            XmlDiffView.HtmlEndCell(writer);
+            XmlDiffView.HtmlEndRow(writer);
         }
 
         private void DrawTextAdd(XmlWriter writer, bool isSvg)
@@ -238,8 +290,8 @@ namespace Microsoft.XmlDiffPatch
             if (openString != string.Empty)
             {
                 var text = (isSvg)
-                    ? DiffTags.GetSvgDeleteString(this.innerText)
-                    : DiffTags.GetXmlDeleteString(this.innerText);
+                    ? DiffTags.GetSvgInsertString(this.innerText)
+                    : DiffTags.GetSvgInsertString(this.innerText);
 
                 XmlDiffView.HtmlWriteString(writer, openString);
                 XmlDiffView.HtmlWriteString(
