@@ -1638,6 +1638,7 @@ namespace Microsoft.XmlDiffPatch
                     newNode = newElement;
                     break;
                 case XmlNodeType.Text:
+                case XmlNodeType.SignificantWhitespace:
                 case XmlNodeType.CDATA:
                 case XmlNodeType.Comment:
                     newNode = new XmlDiffViewCharData(

@@ -397,7 +397,7 @@ namespace Microsoft.XmlDiffPatch
             }
             if (opid)
             {
-                writer.WriteEndElement();
+                //writer.WriteEndElement();
             }
         }
 
